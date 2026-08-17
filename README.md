@@ -5,8 +5,8 @@ backed by SQLite via SQLAlchemy.
 
 ## Features
 
-- `POST /todos` — create a to-do item (optionally with an ISO `due_date`, e.g. `2026-01-15`)
-- `GET /todos` — list to-do items (supports `skip`/`limit` pagination and a `due_before` date filter)
+- `POST /todos` — create a to-do item (optionally with an ISO `due_date`, e.g. `2026-01-15`, and/or a `priority`)
+- `GET /todos` — list to-do items (supports `skip`/`limit` pagination, a `due_before` date filter, and a `priority` filter)
 - `GET /todos/{todo_id}` — fetch a single to-do item
 - `PATCH /todos/{todo_id}` — partially update a to-do item
 - `DELETE /todos/{todo_id}` — delete a to-do item
@@ -17,6 +17,11 @@ backed by SQLite via SQLAlchemy.
 Each to-do has an optional `due_date` (ISO `YYYY-MM-DD`). Use `GET /todos?due_before=<date>`
 to list only items whose `due_date` is earlier than the given date. Items without a
 `due_date` are excluded from `due_before` results.
+
+### `priority` field
+
+Each to-do has a `priority` of `low`, `medium`, or `high` (default `medium` when not
+specified). Use `GET /todos?priority=<priority>` to list only items with that priority.
 
 ## Requirements
 
@@ -62,13 +67,16 @@ development database file.
 # Create a todo
 curl -X POST http://127.0.0.1:8000/todos \
   -H "Content-Type: application/json" \
-  -d '{"title": "Buy milk", "description": "2 liters"}'
+  -d '{"title": "Buy milk", "description": "2 liters", "priority": "high"}'
 
 # List todos
 curl http://127.0.0.1:8000/todos
 
 # List todos due before a given date
 curl "http://127.0.0.1:8000/todos?due_before=2026-06-01"
+
+# List todos with a given priority
+curl "http://127.0.0.1:8000/todos?priority=high"
 
 # Mark a todo as completed
 curl -X PATCH http://127.0.0.1:8000/todos/1 \

@@ -17,8 +17,25 @@ def test_create_todo(client):
     assert data["description"] == "2 liters"
     assert data["completed"] is False
     assert data["due_date"] is None
+    assert data["priority"] == "medium"
     assert "id" in data
     assert "created_at" in data
+
+
+def test_create_todo_with_priority(client):
+    response = client.post(
+        "/todos", json={"title": "Fix outage", "priority": "high"}
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["priority"] == "high"
+
+
+def test_create_todo_rejects_invalid_priority(client):
+    response = client.post(
+        "/todos", json={"title": "Bad priority", "priority": "urgent"}
+    )
+    assert response.status_code == 422
 
 
 def test_create_todo_with_due_date(client):
@@ -82,6 +99,22 @@ def test_list_todos_filter_due_before_invalid_date(client):
     assert response.status_code == 422
 
 
+def test_list_todos_filter_priority(client):
+    client.post("/todos", json={"title": "Low one", "priority": "low"})
+    client.post("/todos", json={"title": "High one", "priority": "high"})
+    client.post("/todos", json={"title": "Default one"})
+
+    response = client.get("/todos", params={"priority": "high"})
+    assert response.status_code == 200
+    titles = [todo["title"] for todo in response.json()]
+    assert titles == ["High one"]
+
+
+def test_list_todos_filter_priority_invalid(client):
+    response = client.get("/todos", params={"priority": "urgent"})
+    assert response.status_code == 422
+
+
 def test_get_todo_by_id(client):
     created = client.post("/todos", json={"title": "Read a book"}).json()
 
@@ -115,6 +148,26 @@ def test_update_todo_due_date(client):
     data = response.json()
     assert data["due_date"] == "2026-12-25"
     assert data["title"] == "Old title"
+
+
+def test_update_todo_priority(client):
+    created = client.post("/todos", json={"title": "Old title"}).json()
+    assert created["priority"] == "medium"
+
+    response = client.patch(f"/todos/{created['id']}", json={"priority": "low"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["priority"] == "low"
+    assert data["title"] == "Old title"
+
+
+def test_update_todo_rejects_invalid_priority(client):
+    created = client.post("/todos", json={"title": "Old title"}).json()
+
+    response = client.patch(
+        f"/todos/{created['id']}", json={"priority": "urgent"}
+    )
+    assert response.status_code == 422
 
 
 def test_update_todo_not_found(client):

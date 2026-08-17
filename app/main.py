@@ -33,13 +33,14 @@ def list_todos(
     skip: int = 0,
     limit: int = 100,
     due_before: date | None = None,
+    priority: schemas.Priority | None = None,
     db: Session = Depends(get_db),
 ):
-    """List todos, optionally filtered to those due before ``due_before``.
+    """List todos, optionally filtered by ``due_before`` and/or ``priority``.
 
     Todos without a due_date are excluded when ``due_before`` is set.
     """
-    return crud.get_todos(db, skip=skip, limit=limit, due_before=due_before)
+    return crud.get_todos(db, skip=skip, limit=limit, due_before=due_before, priority=priority)
 
 
 @app.get("/todos/{todo_id}", response_model=schemas.TodoRead, tags=["todos"])
