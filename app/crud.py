@@ -32,7 +32,7 @@ def get_todos(
 ) -> list[Todo]:
     stmt = select(Todo)
     if due_before is not None:
-        stmt = stmt.where(Todo.due_date.is_not(None), Todo.due_date < due_before)
+        stmt = stmt.where(Todo.due_date.is_not(None), Todo.due_date <= due_before)
     if priority is not None:
         stmt = stmt.where(Todo.priority == priority.value)
     stmt = stmt.order_by(Todo.id).offset(skip).limit(limit)

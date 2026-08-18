@@ -86,6 +86,16 @@ def test_list_todos_filter_due_before(client):
     assert titles == ["Overdue"]
 
 
+def test_list_todos_filter_due_before_includes_boundary_date(client):
+    client.post("/todos", json={"title": "Due on boundary", "due_date": "2026-06-01"})
+    client.post("/todos", json={"title": "Due after boundary", "due_date": "2026-06-02"})
+
+    response = client.get("/todos", params={"due_before": "2026-06-01"})
+    assert response.status_code == 200
+    titles = [todo["title"] for todo in response.json()]
+    assert titles == ["Due on boundary"]
+
+
 def test_list_todos_filter_due_before_excludes_items_without_due_date(client):
     client.post("/todos", json={"title": "No due date"})
 
