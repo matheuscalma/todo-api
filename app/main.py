@@ -38,6 +38,7 @@ def list_todos(
 ):
     """List todos, optionally filtered by ``due_before`` and/or ``priority``.
 
+    ``due_before`` is inclusive: todos due exactly on that date are included.
     Todos without a due_date are excluded when ``due_before`` is set.
     """
     return crud.get_todos(db, skip=skip, limit=limit, due_before=due_before, priority=priority)
