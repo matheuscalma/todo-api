@@ -1,8 +1,15 @@
 """Pydantic schemas for request/response validation."""
 
 from datetime import date, datetime
+from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class Priority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
 class TodoBase(BaseModel):
@@ -10,6 +17,7 @@ class TodoBase(BaseModel):
     description: str | None = Field(default=None, max_length=2000)
     completed: bool = False
     due_date: date | None = None
+    priority: Priority = Priority.MEDIUM
 
 
 class TodoCreate(TodoBase):
@@ -23,6 +31,7 @@ class TodoUpdate(BaseModel):
     description: str | None = Field(default=None, max_length=2000)
     completed: bool | None = None
     due_date: date | None = None
+    priority: Priority | None = None
 
 
 class TodoRead(TodoBase):
